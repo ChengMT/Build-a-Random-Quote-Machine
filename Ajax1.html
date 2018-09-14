@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Build a Random Quote Machine</title>
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--引用奥森图标-->
+    <style>
+        /* body{
+            margin: 100px 350px;
+        } */
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+            SimSun, sans-serif;
+        }
+
+
+        .total{
+            background-color:white;
+            max-width:50em;
+            margin: 10em auto;
+        }
+
+        .context_t{
+            /* height: 60%; */
+            font-size: 30px;
+            /* color: black; */
+            text-align: left;
+            padding: 30px 30px;
+            box-sizing: border-box; 
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        .author_t{
+            /* height: 20%; */
+            font-size: 20px;
+            /* color: black; */
+            text-align:right;
+            padding: 20px 20px;
+            box-sizing: border-box; 
+            font-weight: bold;
+        }
+
+        .other{
+            /* height: 20%; */
+            font-size: 30px;
+            /* color: black; */
+            /* background-color: yellowgreen; */
+            padding: 30px 30px;
+            box-sizing: border-box; 
+        }
+
+        .other div{
+            width: 45%;
+            display: inline-block;
+            vertical-align:middle;
+            text-align: center;
+        }
+
+        .other a{
+            width: 1em;
+            display: inline-block;
+            padding: 10px 30px;
+        }
+
+        .other a i{
+            color: white;
+        }
+
+        button{
+            padding: 15px 35px;
+            font-size: 20px;
+            border: none;
+            color: wheat;
+            font-weight: bold;
+        }
+        .change-opacity:hover{
+            opacity: 0.7;
+            cursor:pointer;
+        }
+        /* 增加伪元素，当鼠标指到button时，会变颜色的亮度，而且会变成手指的形状 */
+    </style>
+</head>
+<body >
+    <div class="total" >
+        <div class="context_t">
+            <i class="fa fa-quote-left" style="font-size:40px"></i>
+            <span class="context"></span>
+        </div>
+        <div class="author_t">
+            <span style="font-size:40px">-- </span>
+            <span class="author"></span>
+        </div>
+        <div class="other">
+            <div>
+                <a class="change-opacity">
+                    <i class="fa fa-qq" id="QQ"></i>
+                </a>
+                <a class="change-opacity">
+                    <i class="fa fa-weixin" id="weixin" ></i>
+                </a>
+                
+            </div>
+            <div>
+                <button id="next" status="true" class="change-opacity">下一个</button>
+                <!-- 新增status属性，自命名   状态是true时，代表未点击-->
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+    (function(){
+        //以上代码是相当于封装，与$(document).ready=function(){} 
+        function changeColor(){
+            var color = ["#CC9999", "#99CCCC", "#CCC00", "#cc0033", "#99CC33", "#009966", "#FF0033","#CC9999", "#99CCAC", "#CCC10", "#cc0033", "#99DC33", "#008966", "#FF0022"];
+            //增加背景颜色 
+            var selected = parseInt( Math.random()* 14);
+            //随机选取北京颜色的值 
+            $("body").css("background-color", color[selected]);
+            $(".context_t").css("color", color[selected]);
+            $(".author_t").css("color", color[selected]);
+            $("button").css("background-color", color[selected]);
+            $("a").css("background-color", color[selected]);
+            //针对各个地方需要改变的颜色。 color[selected]是代表颜色的变量，所以不能用引号，如果三颜色库的颜色名字，则用“”括起来
+        }
+        //此函数在 getQoute（）函数中被引用了
+
+        function getQoute (){
+            $.ajax({
+                headers: {
+                  "X-Mashape-Key": "OivH71yd3tmshl9YKzFH7BTzBVRQp1RaKLajsnafgL2aPsfP9V",
+                  Accept: "application/json",
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                url: 'https://andruxnet-random-famous-quotes.p.mashape.com/cat=',
+                beforeSend: function name(params) {
+                    changeColor(); 
+                },
+                success: function(data){
+                    // 处理成功获取数据后的展示
+                    data = JSON.parse(data);
+                    //将拿到的类型为string的data变为JSON对象格式，并赋给data 
+                    console.log(data.quote);
+                   
+                    $(".context").html(data.quote);
+                    $(".author").html(data.author);
+                    $(".context_t").hide().fadeIn(600);
+                    $(".author_t").hide().fadeIn(600);
+                    //回调成功后，将statue状态更改为true，true代表可点击进行触发onclick事件。flase代表正在执行点击事件
+                    $("#next").attr("status", "true");
+
+                }
+            });
+
+        }
+
+        getQoute();
+        //此处必须引用这个functions。立即执行 
+        
+
+        $("#next").on('click', function(){
+            
+            var state = $("#next").attr("status");
+            if(state == "true"){
+                $("#next").attr("status", "false");
+                getQoute();
+            }
+            
+        });
+        //给Button绑定点击事件（jQuery的常用绑定方式） 
+            
+    })();
+</script>
+</html>
